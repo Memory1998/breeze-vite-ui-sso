@@ -4,7 +4,7 @@
  */
 import request from '@/utils/request.ts'
 import { AxiosPromise } from 'axios'
-import { ClientResponseData, ClientQuery, ClientRecord, ClientForm } from './type.ts'
+import { ClientResponseData, ClientQuery, ClientForm } from './type.ts'
 
 enum API {
   CLIENT_RESTFUL_URL = '/auth/v1/client',

@@ -13,14 +13,13 @@ const userStore = useUserStore()
 
 onMounted(() => {
   const accessToken = $route.query.accessToken as string
-  const refreshToken = $route.query.refreshToken as string
-  if (accessToken && refreshToken) {
-    userStore.storeLoginInfo(accessToken, refreshToken)
+  if (accessToken) {
+    userStore.storeLoginInfo(accessToken)
     router.push('Layout')
   }
 })
 </script>
 
-<template>welcome</template>
+<template>{{}}</template>
 
 <style lang="scss" scoped></style>

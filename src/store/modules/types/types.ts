@@ -14,7 +14,6 @@ import { Client } from '@stomp/stompjs'
 export interface UserState {
   userInfo: UserInfoData
   tenantId: string
-  refreshToken: string
   accessToken: string
   roleCodes: string[]
   permissions: string[]

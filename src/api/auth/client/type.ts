@@ -14,25 +14,8 @@ export interface ClientRecord {
   clientSecret: string
   confirmClientSecret: string
   redirectUris: string[]
-  scopes: string[]
-  authorizationGrantTypes: string[]
-  clientAuthenticationMethods: string[]
   clientSecretExpiresAt: string
   clientIdIssuedAt: string
-  clientSettings: {
-    requireProofKey: boolean
-    requireAuthorizationConsent: boolean
-    jwkSetUrl: string
-    tokenEndpointAuthenticationSigningAlgorithm: string
-  }
-  tokenSettings: {
-    reuseRefreshTokens: boolean
-    idTokenSignatureAlgorithm: string
-    accessTokenFormat: string
-    refreshTokenTimeToLive: number
-    authorizationCodeTimeToLive: number
-    accessTokenTimeToLive: number
-  }
 }
 
 /**
@@ -71,23 +54,6 @@ export interface ClientForm {
   clientSecret: string
   confirmClientSecret: string
   redirectUris: string[]
-  scopes: string[]
-  authorizationGrantTypes: string[]
-  clientAuthenticationMethods: string[]
   clientSecretExpiresAt: string
   clientIdIssuedAt: string
-  clientSettings: {
-    requireProofKey: boolean
-    requireAuthorizationConsent: boolean
-    jwkSetUrl: string
-    tokenEndpointAuthenticationSigningAlgorithm: string
-  }
-  tokenSettings: {
-    reuseRefreshTokens: boolean
-    idTokenSignatureAlgorithm: string
-    accessTokenFormat: string
-    refreshTokenTimeToLive: number
-    authorizationCodeTimeToLive: number
-    accessTokenTimeToLive: number
-  }
 }

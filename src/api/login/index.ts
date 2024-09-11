@@ -4,7 +4,7 @@
  */
 import request from '@/utils/request'
 import { AxiosPromise } from 'axios'
-import { UserLoginForm, PermissionResponseData } from './type'
+import { PermissionResponseData } from './type'
 import { GrantType } from '@/types/types.ts'
 
 enum API {
@@ -30,23 +30,48 @@ export function listPermission(i18n: string): AxiosPromise<PermissionResponseDat
 }
 
 /**
- * 用户登录
- *
- * @param userLoginForm 用户登录提交参数
- * @param grantType     登录类型
+ * 校验是否登录
  */
-export const userLogin = (userLoginForm: UserLoginForm, grantType: GrantType) =>
-  request.post<any, any>(
-    API.AUTH_URL +
-      `?grant_type=${grantType}&username=${userLoginForm.username}&password=${userLoginForm.password}&scope=user_info&captchaVerification=${userLoginForm.captchaVerification}`,
-    {},
-    {
-      headers: {
-        Authorization: 'Basic YnJlZXplOmJyZWV6ZQ==',
-        withCredentials: true,
-      },
+export function checkIsLogin(): AxiosPromise<PermissionResponseData> {
+  return request({
+    url: '/sso/isLogin',
+    method: 'get',
+  })
+}
+
+/**
+ * 获取sso地址
+ */
+export function getSsoAuthUrl(back: string): AxiosPromise<PermissionResponseData> {
+  return request({
+    url: '/sso/getSsoAuthUrl',
+    method: 'get',
+    params: { clientLoginUrl: back },
+  })
+}
+
+/**
+ * sso 使用 ticket获取 token
+ */
+export function doLoginByTicket(ticket: string) {
+  return request({
+    url: '/sso/doLoginByTicket',
+    method: 'get',
+    params: {
+      ticket: ticket,
     },
-  )
+  })
+}
+
+/**
+ * sso 用户信息
+ */
+export function userInfo() {
+  return request({
+    url: '/sso/userInfo',
+    method: 'get',
+  })
+}
 
 /**
  * TOKEN刷新

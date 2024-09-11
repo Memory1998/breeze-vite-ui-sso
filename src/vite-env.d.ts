@@ -7,7 +7,7 @@ declare module '*.vue' {
 
 interface ImportMetaEnv {
   VITE_APP_TITLE: string
-  VITE_APP_BASE_SERVER: string
+  VITE_APP_SSO_BASE_SERVER: string
   VITE_APP_BASE_PORT: string
   /** API 基础路径 */
   VITE_APP_BASE_API: string

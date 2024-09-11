@@ -141,7 +141,7 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
       open: true, // 运行是否自动打开浏览器
       proxy: {
         [env.VITE_APP_BASE_API]: {
-          target: env.VITE_APP_BASE_SERVER,
+          target: env.VITE_APP_SSO_BASE_SERVER,
           // 需要代理跨域
           changeOrigin: true,
           // 允许websocket代理

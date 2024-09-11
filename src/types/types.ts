@@ -148,12 +148,10 @@ export const SALES: string = '1234567890123456'
  */
 export enum StorageName {
   AccessToken = 'ACCESS_TOKEN',
-  RefreshToken = 'REFRESH_TOKEN',
   RoleCodes = 'ROLE_CODES',
   Permissions = 'PERMISSIONS',
   UserInfo = 'USER_INFO',
   Columns = 'COLUMNS',
-  XTenantId = 'X-TENANT-ID',
   AcceptLanguage = 'Accept-Language',
   Authorization = 'Authorization',
   mixMenuRoutes = 'MIX_MENU_ROUTES',

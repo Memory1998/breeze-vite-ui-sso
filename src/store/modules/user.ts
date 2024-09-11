@@ -3,10 +3,9 @@
  * @since: 2023-11-12
  */
 import { defineStore } from 'pinia'
-import { encrypt } from '@/utils/common'
-import type { LoginResponseData, UserLoginForm } from '@/api/login/type'
+import type { LoginResponseData } from '@/api/login/type'
 import { type UserState } from './types/types'
-import { refreshToken, userLogin } from '@/api/login'
+import { userInfo } from '@/api/login'
 import {
   CLEAR_STORAGE,
   GET_ARRAY_STORAGE,
@@ -15,7 +14,8 @@ import {
   SET_STORAGE,
   SET_STRING_STORAGE,
 } from '@/utils/storage'
-import { AuthoritiesData, AuthoritiesDatas, GrantType, SALES, StorageName, UserInfoData } from '@/types/types'
+import { AuthoritiesData, AuthoritiesDatas, StorageName, UserInfoData } from '@/types/types'
+import { CookiesKey, CookiesStorage } from '@/utils/cookies.ts'
 
 /**
  * 过滤出按钮权限
@@ -38,8 +38,7 @@ const useUserStore = defineStore('User', {
   state: (): UserState => {
     return {
       userInfo: GET_OBJ_STORAGE(StorageName.UserInfo) as UserInfoData,
-      tenantId: GET_STRING_STORAGE(StorageName.XTenantId) as string,
-      refreshToken: GET_STRING_STORAGE(StorageName.RefreshToken) as string,
+      tenantId: CookiesStorage.get(CookiesKey.XTenantId) as string,
       accessToken: GET_STRING_STORAGE(StorageName.AccessToken) as string,
       roleCodes: GET_ARRAY_STORAGE(StorageName.RoleCodes) as string[],
       permissions: GET_ARRAY_STORAGE(StorageName.Permissions) as string[],
@@ -47,32 +46,19 @@ const useUserStore = defineStore('User', {
   },
   actions: {
     /**
-     * 用户登录方法
-     *
-     * @param data 登录参数
+     * 用户信息
      */
-    async userLogin(data: UserLoginForm): Promise<LoginResponseData> {
-      const LoginForm = {
-        username: data.username!.trim() as string,
-        password: encrypt(data.password!.trim(), SALES) as string,
-        captchaVerification: encodeURIComponent(data.captchaVerification as string),
-      }
-      const response: any = await userLogin(LoginForm, GrantType.PASSWORD)
+    async storeUserInfo(): Promise<LoginResponseData> {
+      const response: any = await userInfo()
 
       if (response) {
-        const { access_token, refresh_token, user_info } = response as LoginResponseData
+        const user_info = response.data as UserInfoData
         // 持久化
         this.userInfo = user_info as UserInfoData
         SET_STORAGE(StorageName.UserInfo, this.userInfo as UserInfoData)
 
         this.tenantId = user_info.tenantId as string
-        SET_STRING_STORAGE(StorageName.XTenantId, this.userInfo.tenantId as string)
-
-        this.refreshToken = refresh_token as string
-        SET_STRING_STORAGE(StorageName.RefreshToken, this.refreshToken as string)
-
-        this.accessToken = access_token as string
-        SET_STRING_STORAGE(StorageName.AccessToken, this.accessToken as string)
+        CookiesStorage.set(CookiesKey.XTenantId, this.userInfo.tenantId as string)
 
         this.roleCodes = user_info.userRoleCodes as string[]
         SET_STORAGE(StorageName.RoleCodes, this.roleCodes as string[])
@@ -85,33 +71,23 @@ const useUserStore = defineStore('User', {
       return {} as LoginResponseData
     },
     /**
-     * token刷新方法
+     * 退出登录
      */
-    async toRefreshToken(): Promise<LoginResponseData> {
-      if (!this.refreshToken) {
-        throw Error('refresh token is null ')
-      }
-      const response: any = await refreshToken(this.refreshToken, GrantType.REFRESH_TOKEN)
-      if (response) {
-        const { access_token, refresh_token } = response as LoginResponseData
-        // 持久化
-        this.refreshToken = refresh_token as string
-        SET_STRING_STORAGE(StorageName.RefreshToken, this.refreshToken as string)
-
-        this.accessToken = access_token as string
-        SET_STRING_STORAGE(StorageName.AccessToken, this.accessToken as string)
-        return response
-      }
-      return {} as LoginResponseData
+    async logout() {
+      location.href =
+        import.meta.env.VITE_APP_SSO_BASE_SERVER +
+        '/sso/logout?satoken=' +
+        this.accessToken +
+        '&back=' +
+        encodeURIComponent(location.origin)
+      await this.clearLoginInfo()
     },
     /**
      * 退出登录
      */
-    async logout() {
+    async clearLoginInfo() {
       this.userInfo = {} as UserInfoData
-      this.tenantId = '' as string
       this.accessToken = '' as string
-      this.refreshToken = '' as string
       this.permissions = [] as string[]
       this.roleCodes = [] as string[]
       CLEAR_STORAGE()
@@ -119,16 +95,16 @@ const useUserStore = defineStore('User', {
     /**
      * 保存登录信息
      */
-    storeLoginInfo(refreshToken: string, accessToken: string) {
+    async storeLoginInfo(accessToken: string) {
       this.accessToken = accessToken
-      this.refreshToken = refreshToken
+      SET_STRING_STORAGE(StorageName.AccessToken, this.accessToken as string)
     },
     /**
      * 保存租户信息
      */
     storeTenantId(tenantId: string) {
       this.tenantId = tenantId
-      SET_STRING_STORAGE(StorageName.XTenantId, tenantId)
+      CookiesStorage.set(CookiesKey.XTenantId, tenantId)
     },
   },
   getters: {
@@ -141,6 +117,18 @@ const useUserStore = defineStore('User', {
       return async (): Promise<string[]> => {
         return (
           state.permissions.length > 0 ? state.permissions : (GET_ARRAY_STORAGE(StorageName.Permissions) as string[])
+        ) as string[]
+      }
+    },
+    /**
+     * 获取角色信息
+     *
+     * @param state
+     */
+    getRoleCodes: (state: UserState) => {
+      return async (): Promise<string[]> => {
+        return (
+          state.roleCodes.length > 0 ? state.roleCodes : (GET_ARRAY_STORAGE(StorageName.RoleCodes) as string[])
         ) as string[]
       }
     },
