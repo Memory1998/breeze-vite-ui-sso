@@ -74,12 +74,15 @@ const useUserStore = defineStore('User', {
      * 退出登录
      */
     async logout() {
-      location.href =
-        import.meta.env.VITE_APP_SSO_BASE_SERVER +
-        '/sso/logout?satoken=' +
-        this.accessToken +
-        '&back=' +
-        encodeURIComponent(location.origin)
+      let href = ''
+      const env = import.meta.env.VITE_APP_BASE_API
+      if (env === 'development') {
+        href = import.meta.env.VITE_APP_SSO_BASE_SERVER
+      } else {
+        href = import.meta.env.VITE_APP_SSO_BASE_SERVER + '/api'
+      }
+      href += '/sso/logout?satoken=' + this.accessToken + '&back=' + encodeURIComponent(location.origin)
+      location.href = href
       await this.clearLoginInfo()
     },
     /**

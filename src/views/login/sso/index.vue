@@ -4,18 +4,16 @@
 -->
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import useUserStore from '@/store/modules/user'
 import useSettingStore from '@/store/modules/setting'
 import { storeToRefs } from 'pinia'
 import Verify from '@/components/anj-plus/Verify.vue'
 import { THEME } from '@/utils/common.ts'
 import SvgButton from '@/components/SvgButton/index.vue'
-import { checkIsLogin } from '@/api/login'
 import { SelectData } from '@/types/types.ts'
 import { selectTenant } from '@/api/auth/tenant'
 
-let $router = useRouter()
+// let $router = useRouter()
 let settingStore = useSettingStore()
 let { theme, settings } = storeToRefs(settingStore)
 let loading = ref(false)
@@ -32,10 +30,10 @@ onMounted(async () => {
   changeThemeColor()
   await initSelectTenant()
   await userStore.clearLoginInfo()
-  const res: any = await checkIsLogin()
-  if (res.data) {
-    await $router.push(loginUrl)
-  }
+  // const res: any = await checkIsLogin()
+  // if (res.data) {
+  //   await $router.push(loginUrl)
+  // }
 })
 
 const tenantOption = ref<SelectData[]>()
