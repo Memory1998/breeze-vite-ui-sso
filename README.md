@@ -8,8 +8,8 @@
 - 支持按钮级别的权限控制。
 - 支持加载动态权限菜单。
 - 后端代码，请移步。
-  - [github JDK17](https://github.com/Memory1998/breeze-boot-satoken-sso.git)
-  - [gitee JDK17](https://gitee.com/memoryGiter/breeze-boot-satoken-sso.git)
+  - [github JDK17](https://github.com/breeze-boot/breeze-boot-satoken-sso.git)
+  - [gitee JDK17](https://gitee.com/breeze-boot/breeze-boot-satoken-sso.git)
 
 ## 推荐的开发环境配置
 
@@ -29,9 +29,6 @@ TypeScript 默认无法处理 .vue 导入的类型信息，因此我们将 tsc C
 - [WebStorm](https://www.jetbrains.com/webstorm/download)
 - [Idea](https://www.jetbrains.com/idea/download) + Vue插件
 
-- 前端代码，请移步
-    - [github：vue + vite + TS 版本](https://github.com/Memory1998/breeze-vite-ui-satoken-sso.git)
-    - [gitee: vue + vite + TS 版本](https://gitee.com/memoryGiter/breeze-vite-ui-satoken-sso.git)
 
 ### 特别鸣谢：
 
