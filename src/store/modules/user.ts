@@ -51,7 +51,7 @@ const useUserStore = defineStore('User', {
     async storeUserInfo(): Promise<LoginResponseData> {
       const response: any = await userInfo()
 
-      if (response) {
+      if (response.data) {
         const user_info = response.data as UserInfoData
         // 持久化
         this.userInfo = user_info as UserInfoData
@@ -74,15 +74,12 @@ const useUserStore = defineStore('User', {
      * 退出登录
      */
     async logout() {
-      let href = ''
-      const env = import.meta.env.VITE_APP_BASE_API
-      if (env === 'development') {
-        href = import.meta.env.VITE_APP_SSO_BASE_SERVER
-      } else {
-        href = import.meta.env.VITE_APP_SSO_BASE_SERVER + '/api'
-      }
-      href += '/sso/logout?satoken=' + this.accessToken + '&back=' + encodeURIComponent(location.origin)
-      location.href = href
+      location.href =
+        import.meta.env.VITE_APP_SSO_BASE_SERVER +
+        '/sso/logout?satoken=' +
+        this.accessToken +
+        '&back=' +
+        encodeURIComponent(location.origin)
       await this.clearLoginInfo()
     },
     /**

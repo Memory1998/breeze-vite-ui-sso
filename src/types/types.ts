@@ -129,16 +129,6 @@ export interface PermissionData {
 export type PermissionDatas = PermissionData[]
 
 /**
- * 登录类型
- */
-export enum GrantType {
-  PASSWORD = 'password',
-  REFRESH_TOKEN = 'refresh_token',
-  SMS = 'sms',
-  EMAIL = 'email',
-}
-
-/**
  * 盐
  */
 export const SALES: string = '1234567890123456'

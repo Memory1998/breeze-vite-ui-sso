@@ -29,7 +29,6 @@ TypeScript 默认无法处理 .vue 导入的类型信息，因此我们将 tsc C
 - [WebStorm](https://www.jetbrains.com/webstorm/download)
 - [Idea](https://www.jetbrains.com/idea/download) + Vue插件
 
-
 ### 特别鸣谢：
 
 - [验证码： https://gitee.com/anji-plus/captcha](https://gitee.com/anji-plus/captcha)

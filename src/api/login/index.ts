@@ -5,12 +5,9 @@
 import request from '@/utils/request'
 import { AxiosPromise } from 'axios'
 import { PermissionResponseData } from './type'
-import { GrantType } from '@/types/types.ts'
 
 enum API {
-  AUTH_URL = '/oauth2/token',
   LIST_PERMISSION_URL = '/auth/v1/menu/listTreeMenu',
-  LOGOUT_URL = '/logout',
 }
 
 /**
@@ -53,12 +50,13 @@ export function getSsoAuthUrl(back: string): AxiosPromise<PermissionResponseData
 /**
  * sso 使用 ticket获取 token
  */
-export function doLoginByTicket(ticket: string) {
+export function doLoginByTicket(ticket: string, back: string) {
   return request({
     url: '/sso/doLoginByTicket',
     method: 'get',
     params: {
-      ticket: ticket,
+      ticket,
+      back,
     },
   })
 }
@@ -72,25 +70,3 @@ export function userInfo() {
     method: 'get',
   })
 }
-
-/**
- * TOKEN刷新
- *
- * @param refreshToken 刷新token
- * @param grantType    登录类型
- */
-export const refreshToken = (refreshToken: string, grantType: GrantType) =>
-  request.post<any, any>(
-    API.AUTH_URL + `?grant_type=${grantType}&refresh_token=${refreshToken}`,
-    {},
-    {
-      headers: {
-        Authorization: 'Basic YnJlZXplOmJyZWV6ZQ==',
-      },
-    },
-  )
-
-/**
- * 退出登录
- */
-export const logout = () => request.get<any, any>(API.LOGOUT_URL)

@@ -16,34 +16,50 @@ const menuStore = useMenuStore(pinia)
  * 全局前置守卫
  */
 router.beforeEach(async (to, from, next) => {
+  // 设置文档标题
   document.title = (to.meta.title || '') + ` | ${setting.title}`
   nprogress.start()
 
-  const token: string = userStore.accessToken as string
+  const token = userStore.accessToken as string
+
+  // 用户未登录
   if (!token) {
     if (whiteRoute.includes(to.path)) {
-      next()
+      next() // 白名单路由直接放行
+      return
     } else {
-      next({ path: '/sso', query: { redirect: to.path, ...to.query } })
+      next({ path: '/sso', query: { redirect: to.path, ...to.query } }) // 重定向到SSO
+      return
     }
-    return
   }
 
-  const initMenu: boolean = menuStore.initMenu as boolean
+  // 用户已登录
+  const initMenu = menuStore.initMenu as boolean
+
   if (initMenu) {
-    to.path === '/sso'
-      ? next({ path: '/' })
-      : to.matched.length === 0
-        ? from.name
-          ? next({ name: from.name })
-          : next('/404')
-        : next()
+    // 菜单已初始化
+    if (to.path === '/sso') {
+      next({ path: '/' }) // 重定向到主页
+      return
+    }
+
+    // 处理无效路由
+    if (to.matched.length === 0) {
+      from.name ? next({ name: from.name }) : next('/404') // 导航到上一个路由或404页面
+      return
+    }
+
+    // 继续导航
+    next()
   } else {
+    // 菜单未初始化
     try {
-      await menuStore.listPermission()
-      next({ ...to, replace: true })
+      await menuStore.listPermission() // 获取权限数据
+      next({ ...to, replace: true }) // 加载菜单后重定向
     } catch (error) {
-      await userStore.logout()
+      await userStore.logout() // 登出操作
+      // 重定向到SSO
+      next({ path: '/sso', query: { redirect: to.path } })
     }
   }
 })

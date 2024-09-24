@@ -42,9 +42,9 @@ console.log('获取 ticket 参数：', ticket)
  */
 onMounted(async () => {
   if (ticket) {
-    await handleDoLoginByTicket(ticket)
+    await handleDoLoginByTicket(ticket, back)
   } else {
-    await handle2SsoAuthUrl()
+    await handleSsoAuthUrl()
   }
 })
 
@@ -62,7 +62,7 @@ onMounted(async () => {
 /**
  * 重定向至认证中心
  */
-const handle2SsoAuthUrl = async () => {
+const handleSsoAuthUrl = async () => {
   const res: any = await getSsoAuthUrl(location.href)
   location.href = res.data + ('&' + CookiesKey.XTenantId + '=' + userStore.tenantId)
 }
@@ -71,9 +71,10 @@ const handle2SsoAuthUrl = async () => {
  * 根据ticket值登录
  *
  * @param ticket
+ * @param back
  */
-const handleDoLoginByTicket = async (ticket: string) => {
-  const response: any = await doLoginByTicket(ticket)
+const handleDoLoginByTicket = async (ticket: string, back: string) => {
+  const response: any = await doLoginByTicket(ticket, back)
   if (response.code === '0000') {
     await userStore.storeLoginInfo(response.data)
     await columnStore.getRolesMenuColumns()

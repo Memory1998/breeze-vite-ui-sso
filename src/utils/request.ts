@@ -5,14 +5,11 @@ import JSONBigInt from 'json-bigint'
 import { StorageName } from '@/types/types'
 import router from '@/router'
 import useUserStore from '@/store/modules/user'
-import { LoginResponseData } from '@/api/login/type.ts'
 import { convertBigNumberToString } from '@/utils/common.ts'
 import i18n from '@/i18n/index'
 import { CookiesKey } from '@/utils/cookies.ts'
 
-let isRefreshing: boolean = false // 标记是否正在刷新token
 let refreshTimes: number = 0
-let requests: any[] = [] // 存储待重发的请求
 let userStore: any = undefined
 
 /**
@@ -93,50 +90,15 @@ const redirectToLogin = async (): Promise<void> => {
 }
 
 /**
- * 重定向到登录页
- *
- * @param error
- */
-const handleRefreshToken = async (error: any) => {
-  if (!isRefreshing) {
-    refreshTimes++
-    isRefreshing = true
-    try {
-      const response: LoginResponseData = await userStore.toRefreshToken()
-      const token: string = response.access_token
-      error.config.headers['Authorization'] = `Bearer ${token}`
-      requests.forEach((cb) => cb(token))
-      requests = []
-      return Promise.resolve(request(error.config))
-    } catch (e) {
-      await redirectToLogin()
-      return Promise.reject(e)
-    } finally {
-      isRefreshing = false
-    }
-  } else {
-    return new Promise((resolve): void => {
-      requests.push((token: string): void => {
-        error.config.headers['Authorization'] = `Bearer ${token}`
-        resolve(request(error.config))
-      })
-    })
-  }
-}
-
-/**
  * 401处理逻辑
- *
- * @param error
  */
-const handle401Error = async (error: any) => {
+const handle401Error = async () => {
   if (refreshTimes == 1) {
     refreshTimes = 0
     ElMessage.error(i18n.global.t('axios.reLogin'))
     await redirectToLogin()
     return
   }
-  return await handleRefreshToken(error)
 }
 /**
  * 403处理逻辑
@@ -177,7 +139,7 @@ request.interceptors.response.use(
       // 返回其他请求头
       switch (error.response.status) {
         case 401:
-          return handle401Error(error)
+          return handle401Error()
         case 403:
           return handle403Error(error)
         default:
