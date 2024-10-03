@@ -1,39 +1,38 @@
 <!--
  * @author: gaoweixuan
- * @since: 2023-02-25
+ * @since: 2024-09-25
 -->
-<!-- 平台管理 -->
+<!-- SSO客户端管理 -->
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { ElForm, ElMessage } from 'element-plus'
 import BTable from '@/components/Table/BTable/index.vue'
 import SearchContainerBox from '@/components/SearchContainerBox/index.vue'
-import { deletePlatform, exportExcel, page } from '@/api/auth/platform'
-import type { PlatformQuery, PlatformRecord, PlatformRecords } from '@/api/auth/platform/type.ts'
+import { deleteSsoClient, exportExcel, page } from '@/api/auth/ssoClient'
+import type { SsoClientQuery, SsoClientRecord, SsoClientRecords } from '@/api/auth/ssoClient/type.ts'
 import { TableInfo } from '@/components/Table/types/types.ts'
-import AddOrEdit from './components/PlatformAddOrEdit.vue'
+import AddOrEdit from './components/SsoClientAddOrEdit.vue'
 import { Refresh, Search } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 
 defineOptions({
-  name: 'Platform',
+  name: 'SsoClient',
   inheritAttrs: false,
 })
 
 const { t } = useI18n()
-const platformQueryFormRef = ref(ElForm)
-const platformAddOrEditRef = ref()
+const ssoClientQueryFormRef = ref(ElForm)
+const ssoClientAddOrEditRef = ref()
 
 // 查询条件
-const queryParams = reactive<PlatformQuery>({
-  platformCode: '',
-  platformName: '',
+const queryParams = reactive<SsoClientQuery>({
+  clientCode: '',
   current: 1,
   size: 10,
 })
 
 let checkedRows = reactive<string[]>([])
-let currentRow = reactive<PlatformRecord>({})
+let currentRow = reactive<SsoClientRecord>({})
 
 const tableInfo = reactive<TableInfo>({
   // 刷新标识
@@ -46,7 +45,7 @@ const tableInfo = reactive<TableInfo>({
     {
       type: 'primary',
       label: t('common.add'),
-      permission: ['auth:platform:create'],
+      permission: ['auth:ssoClient:create'],
       event: 'add',
       icon: 'add',
       eventHandle: () => handleAdd(),
@@ -54,40 +53,25 @@ const tableInfo = reactive<TableInfo>({
     {
       type: 'danger',
       label: t('common.delete'),
-      permission: ['auth:platform:delete'],
+      permission: ['auth:ssoClient:delete'],
       event: 'delete',
       icon: 'delete',
-      eventHandle: (rows: PlatformRecords) => handleDelete(rows),
+      // 单选返回的是object
+      eventHandle: (row: SsoClientRecord) => handleDelete([row]),
     },
   ],
   // 表格字段配置
   fieldList: [
     {
-      prop: 'platformName',
+      prop: 'clientCode',
       sortable: 'custom',
       showOverflowTooltip: true,
-      label: t('platform.fields.platformName'),
-      type: 'input',
-      formOptions: {
-        rules: [
-          {
-            required: true,
-            message: 'Please input platform name',
-            trigger: 'blur',
-          },
-        ],
-      },
+      label: t('ssoClient.fields.clientCode'),
     },
     {
-      prop: 'platformCode',
-      sortable: 'custom',
+      prop: 'clientUrl',
       showOverflowTooltip: true,
-      label: t('platform.fields.platformCode'),
-    },
-    {
-      prop: 'description',
-      showOverflowTooltip: true,
-      label: t('platform.fields.description'),
+      label: t('ssoClient.fields.clientUrl'),
     },
   ],
   handleBtn: {
@@ -101,8 +85,8 @@ const tableInfo = reactive<TableInfo>({
         type: 'success',
         icon: 'edit',
         event: 'edit',
-        permission: ['auth:platform:modify'],
-        eventHandle: (row: PlatformRecord) => handleUpdate(row),
+        permission: ['auth:ssoClient:modify'],
+        eventHandle: (row: SsoClientRecord) => handleUpdate(row),
       },
       // 查看
       {
@@ -110,8 +94,8 @@ const tableInfo = reactive<TableInfo>({
         type: 'warning',
         icon: 'view',
         event: 'view',
-        permission: ['auth:platform:info'],
-        eventHandle: (row: PlatformRecord) => handleInfo(row),
+        permission: ['auth:ssoClient:info'],
+        eventHandle: (row: SsoClientRecord) => handleInfo(row),
       },
       // 删除
       {
@@ -119,8 +103,8 @@ const tableInfo = reactive<TableInfo>({
         type: 'danger',
         icon: 'delete',
         event: 'delete',
-        permission: ['auth:platform:delete'],
-        eventHandle: (row: PlatformRecord) => handleDelete([row] as PlatformRecords),
+        permission: ['auth:ssoClient:delete'],
+        eventHandle: (row: SsoClientRecord) => handleDelete([row] as SsoClientRecords),
       },
     ],
   },
@@ -137,7 +121,7 @@ const reloadList = () => {
  * 重置查询
  */
 const resetQuery = () => {
-  platformQueryFormRef.value.resetFields()
+  ssoClientQueryFormRef.value.resetFields()
   handleQuery()
 }
 
@@ -154,7 +138,7 @@ const handleQuery = () => {
  * @param id 主键
  */
 const AddOrEditHandle = (id?: number) => {
-  platformAddOrEditRef.value.init(id)
+  ssoClientAddOrEditRef.value.init(id)
 }
 
 /**
@@ -178,9 +162,10 @@ const handleAdd = () => {
  *
  * @param rows 行数据
  */
-const handleDelete = async (rows: PlatformRecords) => {
-  const platformIds = rows.map((item: any) => item.id)
-  await deletePlatform(platformIds)
+const handleDelete = async (rows: SsoClientRecords) => {
+  debugger
+  const ssoClientIds = rows.map((item: any) => item.id)
+  await deleteSsoClient(ssoClientIds)
   ElMessage.success({
     message: `${t('common.delete') + t('common.success')}`,
     duration: 1000,
@@ -195,7 +180,7 @@ const handleDelete = async (rows: PlatformRecords) => {
  *
  * @param row 修改参数
  */
-const handleUpdate = (row: PlatformRecord) => {
+const handleUpdate = (row: SsoClientRecord) => {
   AddOrEditHandle(row.id)
 }
 
@@ -204,7 +189,7 @@ const handleUpdate = (row: PlatformRecord) => {
  *
  * @param row 选择的行数据
  */
-const handleSelectionChange = (row: PlatformRecord) => {
+const handleSelectionChange = (row: SsoClientRecord) => {
   currentRow = row
   console.log(currentRow)
 }
@@ -212,24 +197,14 @@ const handleSelectionChange = (row: PlatformRecord) => {
 
 <template>
   <search-container-box>
-    <el-form ref="platformQueryFormRef" :model="queryParams" :inline="true">
-      <!-- 平台名 -->
-      <el-form-item :label="t('platform.fields.platformName')" prop="platformName">
+    <el-form ref="ssoClientQueryFormRef" :model="queryParams" :inline="true">
+      <!-- 客户端编码 -->
+      <el-form-item :label="t('ssoClient.fields.clientCode')" prop="clientCode">
         <el-input
           @keyup.enter="handleQuery"
           style="width: 200px"
-          :placeholder="t('platform.fields.platformName')"
-          v-model="queryParams.platformName"
-        />
-      </el-form-item>
-
-      <!-- 平台编码 -->
-      <el-form-item :label="t('platform.fields.platformCode')" prop="platformCode">
-        <el-input
-          @keyup.enter="handleQuery"
-          style="width: 200px"
-          :placeholder="t('platform.fields.platformCode')"
-          v-model="queryParams.platformCode"
+          :placeholder="t('ssoClient.fields.clientCode')"
+          v-model="queryParams.clientCode"
         />
       </el-form-item>
 
@@ -245,7 +220,7 @@ const handleSelectionChange = (row: PlatformRecord) => {
   </search-container-box>
 
   <b-table
-    ref="platformTableRef"
+    ref="ssoClientTableRef"
     :export-api="exportExcel"
     :list-api="page"
     :tableIndex="tableInfo.tableIndex"
@@ -261,5 +236,5 @@ const handleSelectionChange = (row: PlatformRecord) => {
   />
 
   <!-- 新增 / 修改 Dialog -->
-  <add-or-edit ref="platformAddOrEditRef" @reload-data-list="reloadList" />
+  <add-or-edit ref="ssoClientAddOrEditRef" @reload-data-list="reloadList" />
 </template>

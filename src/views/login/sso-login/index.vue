@@ -63,6 +63,7 @@ onMounted(async () => {
  * 重定向至认证中心
  */
 const handleSsoAuthUrl = async () => {
+  debugger
   const res: any = await getSsoAuthUrl(location.href)
   location.href = res.data + ('&' + CookiesKey.XTenantId + '=' + userStore.tenantId)
 }

@@ -1,20 +1,20 @@
 <!--
  * @author: gaoweixuan
- * @since: 2023-02-25
+ * @since: 2024-09-25
 -->
 
-<!-- 平台添加修改弹出框 -->
+<!-- SSO客户端添加修改弹出框 -->
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { addPlatform, getPlatform, editPlatform, checkPlatformCode } from '@/api/auth/platform'
-import type { PlatformForm } from '@/api/auth/platform/type.ts'
+import { addSsoClient, getSsoClient, editSsoClient, checkSsoClientCode } from '@/api/auth/ssoClient'
+import type { SsoClientForm } from '@/api/auth/ssoClient/type.ts'
 import { useI18n } from 'vue-i18n'
 import JSONBigInt from 'json-bigint'
 import useWidth from '@/hooks/dialogWidth'
 
 defineOptions({
-  name: 'PlatformAddOrEdit',
+  name: 'SsoClientAddOrEdit',
   inheritAttrs: false,
 })
 
@@ -22,35 +22,35 @@ const { t } = useI18n()
 const $emit = defineEmits(['reloadDataList'])
 const visible = ref<boolean>(false)
 const loading = ref<boolean>(false)
-const platformDataFormRef = ref()
-const platformDataForm = ref<PlatformForm>({})
+const ssoClientDataFormRef = ref()
+const ssoClientDataForm = ref<SsoClientForm>({})
 const rules = ref({
-  platformName: [
+  clientCode: [
     {
       required: true,
-      message: t('common.placeholder.enter') + t('platform.fields.platformName'),
-      trigger: 'blur',
-    },
-  ],
-  platformCode: [
-    {
-      required: true,
-      message: t('common.placeholder.enter') + t('platform.fields.platformCode'),
+      message: t('common.placeholder.enter') + t('ssoClient.fields.clientCode'),
       trigger: 'blur',
     },
     {
       validator: (rule: any, value: any, callback: any) => {
-        checkPlatformCode(
+        checkSsoClientCode(
           value,
-          !platformDataForm.value.id ? undefined : JSONBigInt.parse(platformDataForm.value.id),
+          !ssoClientDataForm.value.id ? undefined : JSONBigInt.parse(ssoClientDataForm.value.id),
         ).then((response: any) => {
           if (response.data) {
             callback()
             return
           }
-          callback(new Error(t('platform.rules.platformCodeExists')))
+          callback(new Error(t('ssoClient.rules.clientCodeExists')))
         })
       },
+      trigger: 'blur',
+    },
+  ],
+  clientUrl: [
+    {
+      required: true,
+      message: t('common.placeholder.enter') + t('ssoClient.fields.clientUrl'),
       trigger: 'blur',
     },
   ],
@@ -62,11 +62,11 @@ const rules = ref({
  * @param id
  */
 const init = async (id: number) => {
-  platformDataForm.value.id = undefined
+  ssoClientDataForm.value.id = undefined
   visible.value = true
   // 重置表单数据
-  if (platformDataFormRef.value) {
-    platformDataFormRef.value.resetFields()
+  if (ssoClientDataFormRef.value) {
+    ssoClientDataFormRef.value.resetFields()
   }
 
   if (id) {
@@ -80,9 +80,9 @@ const init = async (id: number) => {
  * @param id
  */
 const getInfo = async (id: number) => {
-  const response: any = await getPlatform(JSONBigInt.parse(id))
+  const response: any = await getSsoClient(JSONBigInt.parse(id))
   if (response.code === '0000') {
-    Object.assign(platformDataForm.value, response.data)
+    Object.assign(ssoClientDataForm.value, response.data)
   }
 }
 
@@ -90,14 +90,14 @@ const getInfo = async (id: number) => {
  * 表单提交
  */
 const handleDataFormSubmit = () => {
-  platformDataFormRef.value.validate(async (valid: boolean) => {
+  ssoClientDataFormRef.value.validate(async (valid: boolean) => {
     if (!valid) {
       return false
     }
     loading.value = true
-    const id = platformDataForm.value.id
+    const id = ssoClientDataForm.value.id
     if (id) {
-      await editPlatform(id, platformDataForm.value)
+      await editSsoClient(id, ssoClientDataForm.value)
       ElMessage.success({
         message: `${t('common.modify') + t('common.success')}`,
         duration: 1000,
@@ -108,7 +108,7 @@ const handleDataFormSubmit = () => {
         },
       })
     } else {
-      await addPlatform(platformDataForm.value)
+      await addSsoClient(ssoClientDataForm.value)
       ElMessage.success({
         message: `${t('common.save') + t('common.success')}`,
         duration: 1000,
@@ -131,39 +131,45 @@ defineExpose({
   <el-dialog
     v-model="visible"
     :width="useWidth()"
-    :title="!platformDataForm.id ? t('common.add') : t('common.edit')"
+    :title="!ssoClientDataForm.id ? t('common.add') : t('common.edit')"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
   >
     <el-form
-      :model="platformDataForm"
+      :model="ssoClientDataForm"
       :rules="rules"
-      ref="platformDataFormRef"
+      ref="ssoClientDataFormRef"
       @keyup.enter="handleDataFormSubmit()"
       label-width="90px"
     >
-      <el-form-item :label="t('platform.fields.platformName')" prop="platformName">
+      <el-form-item :label="t('ssoClient.fields.clientCode')" prop="clientCode">
         <el-input
-          v-model="platformDataForm.platformName"
+          v-model="ssoClientDataForm.clientCode"
           autocomplete="off"
           clearable
-          :placeholder="t('common.placeholder.enter') + t('platform.fields.platformName')"
+          :placeholder="t('common.placeholder.enter') + t('ssoClient.fields.clientCode')"
         />
       </el-form-item>
-      <el-form-item :label="t('platform.fields.platformCode')" prop="platformCode">
+      <el-form-item :label="t('ssoClient.fields.clientUrl')" prop="clientUrl">
         <el-input
-          v-model="platformDataForm.platformCode"
+          v-model="ssoClientDataForm.clientUrl"
           autocomplete="off"
           clearable
-          :placeholder="t('common.placeholder.enter') + t('platform.fields.platformCode')"
+          :placeholder="t('common.placeholder.enter') + t('ssoClient.fields.clientUrl')"
         />
-      </el-form-item>
-      <el-form-item :label="t('platform.fields.description')" prop="description">
-        <el-input v-model="platformDataForm.description" autocomplete="off" clearable type="textarea" />
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="visible = false">{{ t('common.cancel') }}</el-button>
+      <el-button
+        @click="
+          () => {
+            visible = false
+            loading = false
+          }
+        "
+      >
+        {{ t('common.cancel') }}
+      </el-button>
       <el-button type="primary" :loading="loading" @click="handleDataFormSubmit()">{{ t('common.confirm') }}</el-button>
     </template>
   </el-dialog>

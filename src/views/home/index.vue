@@ -3,31 +3,48 @@
  * @since: 2023-11-12
 -->
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { loadGreetings } from '@/utils/times'
 import useUserStore from '@/store/modules/user'
 import useSettingStore from '@/store/modules/setting.ts'
 
 let settings = useSettingStore().settings
 let userStore = useUserStore()
+
+onMounted(() => {
+  console.log('index.vue mounted')
+})
 </script>
 
 <template>
   <el-card>
     <div class="box">
       <img :src="userStore.userInfo?.avatar || settings.logoUrl" alt="" class="avatar" />
-      <div class="footer">
+      <div class="header">
         <h3 class="title">
           {{ loadGreetings() }}~
           <span class="gradient">{{ userStore.userInfo?.username }}</span>
         </h3>
-        <p class="subtitle" v-has="['ROLE_ADMIN1']">{{ settings.title }}</p>
+        <p class="subtitle" v-has="['ROLE_ADMIN']">{{ settings.title }}</p>
       </div>
     </div>
   </el-card>
-  <div class="bottom"></div>
+
+  <el-card>
+    <div class="box">
+      <div class="client">DMS</div>
+      <div class="client">SRM</div>
+      <div class="client">EMS</div>
+      <div class="client">MES</div>
+    </div>
+  </el-card>
 </template>
 
 <style lang="scss" scoped>
+.el-card {
+  margin: 10px;
+}
+
 .box {
   display: flex;
 
@@ -37,7 +54,7 @@ let userStore = useUserStore()
     border-radius: 50%;
   }
 
-  .footer {
+  .header {
     margin-top: 15px;
     margin-left: 20px;
 
@@ -64,11 +81,27 @@ let userStore = useUserStore()
       color: #ccc;
     }
   }
-}
 
-.bottom {
-  display: flex;
-  justify-content: center;
-  margin-top: 30px;
+  .client {
+    cursor: pointer;
+    width: 100px;
+    height: 100px;
+    background: #f5f5f5;
+    border-radius: 10px;
+    margin: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .client:active {
+    transform: scale(0.95);
+  }
+  .client:hover {
+    background: #e6e6e6;
+  }
 }
 </style>

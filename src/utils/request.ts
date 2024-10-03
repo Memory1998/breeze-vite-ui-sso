@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import pinia from '@/store'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import JSONBigInt from 'json-bigint'
 import { StorageName } from '@/types/types'
 import router from '@/router'
@@ -93,13 +93,25 @@ const redirectToLogin = async (): Promise<void> => {
  * 401处理逻辑
  */
 const handle401Error = async () => {
-  if (refreshTimes == 1) {
-    refreshTimes = 0
+  refreshTimes = 0
+  await handleLogout()
+}
+
+/**
+ *退出登录
+ */
+const handleLogout = async () => {
+  ElMessageBox.confirm(i18n.global.t('common.sureToLogOutExitSystem'), i18n.global.t('common.tip'), {
+    confirmButtonText: i18n.global.t('common.confirm'),
+    cancelButtonText: i18n.global.t('common.cancel'),
+    type: 'warning',
+  }).then(async () => {
     ElMessage.error(i18n.global.t('axios.reLogin'))
     await redirectToLogin()
-    return
-  }
+    window.location.reload()
+  })
 }
+
 /**
  * 403处理逻辑
  *
@@ -124,6 +136,7 @@ request.interceptors.response.use(
     return data
   },
   async (error: any) => {
+    debugger
     if (axios.isAxiosError(error)) {
       if (!error.response) {
         switch (error.code) {
