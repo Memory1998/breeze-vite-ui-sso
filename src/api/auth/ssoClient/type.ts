@@ -9,8 +9,11 @@ import { PageQuery, ResponseData } from '@/types/types.ts'
  */
 export interface SsoClientRecord {
   id?: number
+  registerClientCode?: string
   clientCode?: string
-  clientUrl?: string
+  clientName?: string
+  redirect?: string
+  back?: string
 }
 
 /**
@@ -43,6 +46,9 @@ export interface SsoClientQuery extends PageQuery {
  */
 export interface SsoClientForm {
   id?: number
+  registerClientCode?: string
   clientCode?: string
-  clientUrl?: string
+  clientName?: string
+  redirect?: string
+  back?: string
 }

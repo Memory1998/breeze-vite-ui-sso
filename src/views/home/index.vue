@@ -3,16 +3,30 @@
  * @since: 2023-11-12
 -->
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { loadGreetings } from '@/utils/times'
 import useUserStore from '@/store/modules/user'
 import useSettingStore from '@/store/modules/setting.ts'
+import { SsoClientUrl } from '@/api/home/type.ts'
+import { getHomeSsoClient } from '@/api/home'
 
 let settings = useSettingStore().settings
 let userStore = useUserStore()
 
+let ssoClient = ref<SsoClientUrl[]>()
+
+const handleLoadSystem = async () => {
+  try {
+    const response: any = await getHomeSsoClient()
+    response.data.forEach((item: SsoClientUrl) => item.url + '&X-Tenant-Id=1')
+    ssoClient.value = response.data
+  } catch (e) {
+    console.error(e)
+  }
+}
+
 onMounted(() => {
-  console.log('index.vue mounted')
+  handleLoadSystem()
 })
 </script>
 
@@ -32,10 +46,9 @@ onMounted(() => {
 
   <el-card>
     <div class="box">
-      <div class="client">DMS</div>
-      <div class="client">SRM</div>
-      <div class="client">EMS</div>
-      <div class="client">MES</div>
+      <div class="client" v-for="(item, index) in ssoClient" :key="index">
+        <a :href="item.url" target="_blank">{{ item.clientName }}</a>
+      </div>
     </div>
   </el-card>
 </template>

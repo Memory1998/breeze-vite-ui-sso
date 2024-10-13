@@ -7,8 +7,15 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { addSsoClient, getSsoClient, editSsoClient, checkSsoClientCode } from '@/api/auth/ssoClient'
+import {
+  addSsoClient,
+  getSsoClient,
+  editSsoClient,
+  checkSsoClientCode,
+  selectRegisterClient,
+} from '@/api/auth/ssoClient'
 import type { SsoClientForm } from '@/api/auth/ssoClient/type.ts'
+import { SelectData } from '@/types/types.ts'
 import { useI18n } from 'vue-i18n'
 import JSONBigInt from 'json-bigint'
 import useWidth from '@/hooks/dialogWidth'
@@ -22,6 +29,7 @@ const { t } = useI18n()
 const $emit = defineEmits(['reloadDataList'])
 const visible = ref<boolean>(false)
 const loading = ref<boolean>(false)
+const registerClientOption = ref<SelectData[]>()
 const ssoClientDataFormRef = ref()
 const ssoClientDataForm = ref<SsoClientForm>({})
 const rules = ref({
@@ -31,6 +39,7 @@ const rules = ref({
       message: t('common.placeholder.enter') + t('ssoClient.fields.clientCode'),
       trigger: 'blur',
     },
+
     {
       validator: (rule: any, value: any, callback: any) => {
         checkSsoClientCode(
@@ -47,10 +56,24 @@ const rules = ref({
       trigger: 'blur',
     },
   ],
-  clientUrl: [
+  registerClientCode: [
     {
       required: true,
-      message: t('common.placeholder.enter') + t('ssoClient.fields.clientUrl'),
+      message: t('common.placeholder.enter') + t('ssoClient.fields.registerClientCode'),
+      trigger: 'blur',
+    },
+  ],
+  redirect: [
+    {
+      required: true,
+      message: t('common.placeholder.enter') + t('ssoClient.fields.redirect'),
+      trigger: 'blur',
+    },
+  ],
+  back: [
+    {
+      required: true,
+      message: t('common.placeholder.enter') + t('ssoClient.fields.back'),
       trigger: 'blur',
     },
   ],
@@ -62,6 +85,7 @@ const rules = ref({
  * @param id
  */
 const init = async (id: number) => {
+  await initSelectRegisterClient()
   ssoClientDataForm.value.id = undefined
   visible.value = true
   // 重置表单数据
@@ -122,6 +146,16 @@ const handleDataFormSubmit = () => {
   })
 }
 
+/**
+ * 初始化注册客户端下拉框
+ */
+const initSelectRegisterClient = async () => {
+  const response: any = await selectRegisterClient()
+  if (response.code === '0000') {
+    registerClientOption.value = response.data
+  }
+}
+
 defineExpose({
   init,
 })
@@ -140,8 +174,22 @@ defineExpose({
       :rules="rules"
       ref="ssoClientDataFormRef"
       @keyup.enter="handleDataFormSubmit()"
-      label-width="90px"
+      label-width="120px"
     >
+      <el-form-item :label="t('ssoClient.fields.registerClientCode')" prop="registerClientCode">
+        <el-select
+          :placeholder="t('common.placeholder.enter') + t('ssoClient.fields.registerClientCode')"
+          style="width: 180px"
+        >
+          <el-option
+            v-for="item in registerClientOption"
+            :key="item?.value"
+            :label="item?.label"
+            :value="item?.value"
+          />
+        </el-select>
+      </el-form-item>
+
       <el-form-item :label="t('ssoClient.fields.clientCode')" prop="clientCode">
         <el-input
           v-model="ssoClientDataForm.clientCode"
@@ -150,12 +198,28 @@ defineExpose({
           :placeholder="t('common.placeholder.enter') + t('ssoClient.fields.clientCode')"
         />
       </el-form-item>
-      <el-form-item :label="t('ssoClient.fields.clientUrl')" prop="clientUrl">
+      <el-form-item :label="t('ssoClient.fields.clientName')" prop="clientName">
         <el-input
-          v-model="ssoClientDataForm.clientUrl"
+          v-model="ssoClientDataForm.clientName"
           autocomplete="off"
           clearable
-          :placeholder="t('common.placeholder.enter') + t('ssoClient.fields.clientUrl')"
+          :placeholder="t('common.placeholder.enter') + t('ssoClient.fields.clientName')"
+        />
+      </el-form-item>
+      <el-form-item :label="t('ssoClient.fields.redirect')" prop="redirect">
+        <el-input
+          v-model="ssoClientDataForm.redirect"
+          autocomplete="off"
+          clearable
+          :placeholder="t('common.placeholder.enter') + t('ssoClient.fields.redirect')"
+        />
+      </el-form-item>
+      <el-form-item :label="t('ssoClient.fields.back')" prop="back">
+        <el-input
+          v-model="ssoClientDataForm.back"
+          autocomplete="off"
+          clearable
+          :placeholder="t('common.placeholder.enter') + t('ssoClient.fields.back')"
         />
       </el-form-item>
     </el-form>

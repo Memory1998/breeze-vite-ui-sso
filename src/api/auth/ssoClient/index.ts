@@ -10,7 +10,7 @@ import { ResponseData, SelectResponseData } from '@/types/types.ts'
 enum API {
   SSO_CLIENT_RESTFUL_URL = '/auth/v1/ssoClient',
   CHECK_SSO_CLIENT_CODE_URL = '/auth/v1/ssoClient/checkSsoClientCode',
-  SSO_CLIENT_SELECT_URL = '/sys/v1/common/selectSsoClient',
+  SSO_REGISTER_CLIENT_SELECT_URL = '/sys/v1/common/selectRegisteredClient',
 }
 
 /**
@@ -105,5 +105,16 @@ export function checkSsoClientCode(clientCode: string, clientId?: number): Axios
       clientId: clientId,
       clientCode: clientCode,
     },
+  })
+}
+
+/**
+ * 注册客户端下拉框
+ *
+ */
+export function selectRegisterClient(): AxiosPromise<SelectResponseData> {
+  return request({
+    url: API.SSO_REGISTER_CLIENT_SELECT_URL,
+    method: 'get',
   })
 }

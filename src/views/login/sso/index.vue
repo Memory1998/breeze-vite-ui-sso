@@ -7,13 +7,14 @@ import { computed, ref, onMounted } from 'vue'
 import useUserStore from '@/store/modules/user'
 import useSettingStore from '@/store/modules/setting'
 import { storeToRefs } from 'pinia'
+import { useRouter } from 'vue-router'
 import Verify from '@/components/anj-plus/Verify.vue'
 import { THEME } from '@/utils/common.ts'
 import SvgButton from '@/components/SvgButton/index.vue'
 import { SelectData } from '@/types/types.ts'
 import { selectTenant } from '@/api/auth/tenant'
 
-// let $router = useRouter()
+let $router = useRouter()
 let settingStore = useSettingStore()
 let { theme, settings } = storeToRefs(settingStore)
 let loading = ref(false)
@@ -38,6 +39,9 @@ onMounted(async () => {
 
 const tenantOption = ref<SelectData[]>()
 
+const tenant = ref<any>()
+const open = ref(false)
+
 const verify = ref<any>()
 const captchaType = ref('clickWord')
 const handleCheck = () => {
@@ -51,7 +55,7 @@ const handleOnShow = (type: any) => {
 }
 
 /**
- * 初始化自定义行权限下拉框数据
+ * 初始化租户下拉框
  */
 const initSelectTenant = async () => {
   const response: any = await selectTenant()
@@ -86,6 +90,14 @@ const title = computed(() => {
   return settings.value.title
 })
 
+const handleToSsoLogin = () => {
+  if (!tenantId.value || tenantId.value === '') {
+    open.value = true
+    return
+  }
+  $router.push(loginUrl)
+}
+
 /**
  * 获取当前租户
  */
@@ -114,16 +126,12 @@ const tenantName = computed(() => {
     <div class="login_container" @keyup.enter="handleCheck">
       <div class="tenant">
         <el-popover placement="bottom" trigger="hover">
-          <el-select
-            @change="() => userStore.storeTenantId(tenantId || '1')"
-            :teleported="false"
-            v-model="tenantId"
-            style="width: 120px"
-          >
+          <el-select @change="() => userStore.storeTenantId(tenantId)" v-model="tenantId" style="width: 120px">
             <el-option v-for="item in tenantOption" :key="item?.value" :label="item?.label" :value="item?.value" />
           </el-select>
           <template #reference>
             <svg-button
+              ref="tenant"
               :style="{ background: 'transparent !important' }"
               :circle="true"
               icon="tenant"
@@ -136,20 +144,21 @@ const tenantName = computed(() => {
 
       <div class="login-form-card">
         <h1>{{ title }}</h1>
-        <router-link :to="loginUrl">
-          <svg-button
-            :style="{ background: 'transparent !important' }"
-            :circle="true"
-            :loading="loading"
-            icon="sso"
-            width="10rem"
-            height="10rem"
-            type="primary"
-          />
-        </router-link>
+        <svg-button
+          @svg-btn-click="handleToSsoLogin"
+          :style="{ background: 'transparent !important' }"
+          :circle="true"
+          :loading="loading"
+          icon="sso"
+          width="10rem"
+          height="10rem"
+          type="primary"
+        />
         <div class="tenant-name">{{ tenantName }}</div>
       </div>
-
+      <el-tour content-style="width: 200px" v-model="open">
+        <el-tour-step :target="tenant?.$el" title="租户">请选择租户</el-tour-step>
+      </el-tour>
       <Verify
         mode="pop"
         @success="() => {}"

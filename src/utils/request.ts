@@ -136,7 +136,6 @@ request.interceptors.response.use(
     return data
   },
   async (error: any) => {
-    debugger
     if (axios.isAxiosError(error)) {
       if (!error.response) {
         switch (error.code) {

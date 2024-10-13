@@ -63,15 +63,29 @@ const tableInfo = reactive<TableInfo>({
   // 表格字段配置
   fieldList: [
     {
+      prop: 'registerClientCode',
+      showOverflowTooltip: true,
+      label: t('ssoClient.fields.registerClientCode'),
+    },
+    {
       prop: 'clientCode',
-      sortable: 'custom',
       showOverflowTooltip: true,
       label: t('ssoClient.fields.clientCode'),
     },
     {
-      prop: 'clientUrl',
+      prop: 'clientName',
       showOverflowTooltip: true,
-      label: t('ssoClient.fields.clientUrl'),
+      label: t('ssoClient.fields.clientName'),
+    },
+    {
+      prop: 'redirect',
+      showOverflowTooltip: true,
+      label: t('ssoClient.fields.redirect'),
+    },
+    {
+      prop: 'back',
+      showOverflowTooltip: true,
+      label: t('ssoClient.fields.back'),
     },
   ],
   handleBtn: {
@@ -163,7 +177,6 @@ const handleAdd = () => {
  * @param rows 行数据
  */
 const handleDelete = async (rows: SsoClientRecords) => {
-  debugger
   const ssoClientIds = rows.map((item: any) => item.id)
   await deleteSsoClient(ssoClientIds)
   ElMessage.success({
