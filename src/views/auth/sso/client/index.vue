@@ -9,12 +9,13 @@ import { page, exportExcel, deleteClient } from '@/api/auth/client'
 import BTable from '@/components/Table/BTable/index.vue'
 import SearchContainerBox from '@/components/SearchContainerBox/index.vue'
 import AddOrEdit from './components/ClientAddOrEdit.vue'
-import { ElForm, ElMessage } from 'element-plus'
+import { ElForm } from 'element-plus'
 import type { ClientRecords } from '@/api/auth/client/type.ts'
 import { ClientRecord, ClientQuery } from '@/api/auth/client/type.ts'
 import { TableInfo } from '@/components/Table/types/types.ts'
 import { Refresh, Search } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
+import { useMessage } from '@/hooks/message'
 
 defineOptions({
   name: 'Client',
@@ -200,15 +201,14 @@ const handleAdd = () => {
  * @param rows 行数据
  */
 const handleDelete = async (rows: ClientRecords) => {
-  const clientIds = rows.map((item: any) => item.id)
-  await deleteClient(clientIds)
-  ElMessage.success({
-    message: `${t('common.delete') + t('common.success')}`,
-    duration: 1000,
-    onClose: () => {
-      reloadList()
-    },
-  })
+  try {
+    const clientIds = rows.map((item: any) => item.id)
+    await deleteClient(clientIds)
+    useMessage().success(`${t('common.delete') + t('common.success')}`)
+    reloadList()
+  } catch (err: any) {
+    useMessage().error(err.message)
+  }
 }
 
 /**

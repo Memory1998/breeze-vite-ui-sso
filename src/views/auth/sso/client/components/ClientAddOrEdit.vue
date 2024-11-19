@@ -6,13 +6,13 @@
 <!-- 客户端添加修改弹出框 -->
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
 import { addClient, checkClientCode, editClient, getClient } from '@/api/auth/client'
 import { ClientForm } from '@/api/auth/client/type.ts'
 import { useI18n } from 'vue-i18n'
 import JSONBigInt from 'json-bigint'
 import { useDict } from '@/hooks/dict'
 import useWidth from '@/hooks/dialogWidth'
+import { useMessage } from '@/hooks/message'
 
 defineOptions({
   name: 'ClientAddOrEdit',
@@ -90,46 +90,31 @@ const init = async (id: number) => {
  * @param id
  */
 const getInfo = async (id: number) => {
-  const response: any = await getClient(JSONBigInt.parse(id))
-  if (response.code === '0000') {
+  try {
+    const response: any = await getClient(JSONBigInt.parse(id))
     Object.assign(clientDataForm.value, response.data)
+  } catch (err: any) {
+    useMessage().error(err.message)
   }
 }
 
 /**
  * 表单提交
  */
-const handleClientDataFormSubmit = () => {
-  clientDataFormRef.value.validate(async (valid: boolean) => {
-    if (!valid) {
-      return false
-    }
-    loading.value = true
-    const id = clientDataForm.value.id
-    if (id) {
-      await editClient(id, clientDataForm.value)
-      ElMessage.success({
-        message: `${t('common.modify') + t('common.success')}`,
-        duration: 1000,
-        onClose: () => {
-          visible.value = false
-          loading.value = false
-          $emit('reloadDataList')
-        },
-      })
-    } else {
-      await addClient(clientDataForm.value)
-      ElMessage.success({
-        message: `${t('common.save') + t('common.success')}`,
-        duration: 1000,
-        onClose: () => {
-          visible.value = false
-          loading.value = false
-          $emit('reloadDataList')
-        },
-      })
-    }
-  })
+const handleClientDataFormSubmit = async () => {
+  await clientDataFormRef.value.validate()
+  loading.value = true
+  const id = clientDataForm.value.id
+  try {
+    id ? await editClient(id, clientDataForm.value) : await addClient(clientDataForm.value)
+    useMessage().success(`${(id ? t('common.modify') : t('common.save')) + t('common.success')}`)
+    $emit('reloadDataList')
+  } catch (err: any) {
+    useMessage().error(err.message)
+  } finally {
+    visible.value = false
+    loading.value = false
+  }
 }
 
 defineExpose({

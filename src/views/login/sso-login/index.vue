@@ -74,15 +74,14 @@ const handleSsoAuthUrl = async () => {
  * @param back
  */
 const handleDoLoginByTicket = async (ticket: string, back: string) => {
-  const response: any = await doLoginByTicket(ticket, back)
-  if (response.code === '0000') {
+  try {
+    const response: any = await doLoginByTicket(ticket, back)
     await userStore.storeLoginInfo(response.data)
     await columnStore.getRolesMenuColumns()
     await userStore.storeUserInfo()
     location.href = decodeURIComponent(back)
-  } else {
-    debugger
-    alert(response.msg)
+  } catch (err: any) {
+    alert(err.msg)
   }
 }
 </script>

@@ -6,7 +6,6 @@
 <!-- SSO客户端添加修改弹出框 -->
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
 import {
   addSsoClient,
   getSsoClient,
@@ -19,6 +18,7 @@ import { SelectData } from '@/types/types.ts'
 import { useI18n } from 'vue-i18n'
 import JSONBigInt from 'json-bigint'
 import useWidth from '@/hooks/dialogWidth'
+import { useMessage } from '@/hooks/message'
 
 defineOptions({
   name: 'SsoClientAddOrEdit',
@@ -104,55 +104,42 @@ const init = async (id: number) => {
  * @param id
  */
 const getInfo = async (id: number) => {
-  const response: any = await getSsoClient(JSONBigInt.parse(id))
-  if (response.code === '0000') {
+  try {
+    const response: any = await getSsoClient(JSONBigInt.parse(id))
     Object.assign(ssoClientDataForm.value, response.data)
+  } catch (err: any) {
+    useMessage().error(err.message)
   }
 }
 
 /**
  * 表单提交
  */
-const handleDataFormSubmit = () => {
-  ssoClientDataFormRef.value.validate(async (valid: boolean) => {
-    if (!valid) {
-      return false
-    }
-    loading.value = true
-    const id = ssoClientDataForm.value.id
-    if (id) {
-      await editSsoClient(id, ssoClientDataForm.value)
-      ElMessage.success({
-        message: `${t('common.modify') + t('common.success')}`,
-        duration: 1000,
-        onClose: () => {
-          visible.value = false
-          loading.value = false
-          $emit('reloadDataList')
-        },
-      })
-    } else {
-      await addSsoClient(ssoClientDataForm.value)
-      ElMessage.success({
-        message: `${t('common.save') + t('common.success')}`,
-        duration: 1000,
-        onClose: () => {
-          visible.value = false
-          loading.value = false
-          $emit('reloadDataList')
-        },
-      })
-    }
-  })
+const handleDataFormSubmit = async () => {
+  await ssoClientDataFormRef.value.validate()
+  loading.value = true
+  const id = ssoClientDataForm.value.id
+  try {
+    id ? await editSsoClient(id, ssoClientDataForm.value) : await addSsoClient(ssoClientDataForm.value)
+    useMessage().success(`${(id ? t('common.modify') : t('common.save')) + t('common.success')}`)
+    $emit('reloadDataList')
+  } catch (err: any) {
+    useMessage().error(`${id ? t('common.modify') : t('common.save') + t('common.fail')}`)
+  } finally {
+    visible.value = false
+    loading.value = false
+  }
 }
 
 /**
  * 初始化注册客户端下拉框
  */
 const initSelectRegisterClient = async () => {
-  const response: any = await selectRegisterClient()
-  if (response.code === '0000') {
+  try {
+    const response: any = await selectRegisterClient()
     registerClientOption.value = response.data
+  } catch (err: any) {
+    useMessage().error(err.message)
   }
 }
 
@@ -178,6 +165,7 @@ defineExpose({
     >
       <el-form-item :label="t('ssoClient.fields.registerClientCode')" prop="registerClientCode">
         <el-select
+          v-model="ssoClientDataForm.registerClientCode"
           :placeholder="t('common.placeholder.enter') + t('ssoClient.fields.registerClientCode')"
           style="width: 180px"
         >

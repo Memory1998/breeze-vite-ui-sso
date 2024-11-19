@@ -58,9 +58,11 @@ const handleOnShow = (type: any) => {
  * 初始化租户下拉框
  */
 const initSelectTenant = async () => {
-  const response: any = await selectTenant()
-  if (response.code === '0000') {
+  try {
+    const response: any = await selectTenant()
     tenantOption.value = response.data
+  } catch (err: any) {
+    useMessage().error(err.message)
   }
 }
 
@@ -126,13 +128,18 @@ const tenantName = computed(() => {
     <div class="login_container" @keyup.enter="handleCheck">
       <div class="tenant">
         <el-popover placement="bottom" trigger="hover">
-          <el-select @change="() => userStore.storeTenantId(tenantId)" v-model="tenantId" style="width: 120px">
+          <el-select
+            :teleported="false"
+            @change="() => userStore.storeTenantId(tenantId)"
+            v-model="tenantId"
+            style="width: 120px"
+          >
             <el-option v-for="item in tenantOption" :key="item?.value" :label="item?.label" :value="item?.value" />
           </el-select>
           <template #reference>
             <svg-button
               ref="tenant"
-              :style="{ background: 'transparent !important' }"
+              :style="{ background: 'transparent !important', border: 'transparent !important' }"
               :circle="true"
               icon="tenant"
               width="2rem"
