@@ -31,6 +31,25 @@ export const constantChildRoutes = [
     },
   },
   {
+    path: 'approve/:pageId',
+    component: () => import('@/components/TabWrapper/index.vue'),
+    name: 'Approve',
+    props: (route: any) => {
+      return {
+        title: route.query.title,
+        path: route.query.path,
+        pageId: route.params.pageId,
+      }
+    },
+    meta: {
+      title: '',
+      icon: '',
+      hidden: true,
+      type: 1,
+      href: 0,
+    },
+  },
+  {
     path: '/screen',
     name: 'Screen',
     component: () => import('@/views/screen/index.vue'),

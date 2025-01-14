@@ -8,10 +8,11 @@ import { type UserState } from './types/types'
 import { userInfo } from '@/api/login'
 import {
   CLEAR_STORAGE,
-  GET_ARRAY_STORAGE,
   GET_OBJ_STORAGE,
+  GET_STR_ARRAY_STORAGE,
   GET_STRING_STORAGE,
-  SET_STORAGE,
+  SET_OBJ_STORAGE,
+  SET_STR_ARRAY_STORAGE,
   SET_STRING_STORAGE,
 } from '@/utils/storage'
 import { AuthoritiesData, AuthoritiesDatas, StorageName, UserInfoData } from '@/types/types'
@@ -26,7 +27,7 @@ const filterPermissions = (userInfo: UserInfoData): string[] => {
   if (!userInfo) {
     return []
   }
-  const PERMISSIONS = [] as string[]
+  const PERMISSIONS: string[] = []
 
   ;(userInfo.authorities as AuthoritiesDatas).forEach((item: AuthoritiesData) => {
     PERMISSIONS.push(item.authority)
@@ -38,10 +39,10 @@ const useUserStore = defineStore('User', {
   state: (): UserState => {
     return {
       userInfo: GET_OBJ_STORAGE(StorageName.UserInfo) as UserInfoData,
-      tenantId: CookiesStorage.get(CookiesKey.XTenantId) as string,
-      accessToken: GET_STRING_STORAGE(StorageName.AccessToken) as string,
-      roleCodes: GET_ARRAY_STORAGE(StorageName.RoleCodes) as string[],
-      permissions: GET_ARRAY_STORAGE(StorageName.Permissions) as string[],
+      tenantId: CookiesStorage.get(CookiesKey.XTenantId),
+      accessToken: GET_STRING_STORAGE(StorageName.AccessToken),
+      roleCodes: GET_STR_ARRAY_STORAGE(StorageName.RoleCodes),
+      permissions: GET_STR_ARRAY_STORAGE(StorageName.Permissions),
     }
   },
   actions: {
@@ -55,16 +56,16 @@ const useUserStore = defineStore('User', {
         const user_info = response.data as UserInfoData
         // 持久化
         this.userInfo = user_info as UserInfoData
-        SET_STORAGE(StorageName.UserInfo, this.userInfo as UserInfoData)
+        SET_OBJ_STORAGE(StorageName.UserInfo, this.userInfo as UserInfoData)
 
-        this.tenantId = user_info.tenantId as string
-        CookiesStorage.set(CookiesKey.XTenantId, this.userInfo.tenantId as string)
+        this.tenantId = user_info.tenantId
+        CookiesStorage.set(CookiesKey.XTenantId, this.userInfo.tenantId)
 
-        this.roleCodes = user_info.userRoleCodes as string[]
-        SET_STORAGE(StorageName.RoleCodes, this.roleCodes as string[])
+        this.roleCodes = user_info.userRoleCodes
+        SET_STR_ARRAY_STORAGE(StorageName.RoleCodes, this.roleCodes)
 
-        this.permissions = filterPermissions(user_info) as string[]
-        SET_STORAGE(StorageName.Permissions, this.permissions as string[])
+        this.permissions = filterPermissions(user_info)
+        SET_STR_ARRAY_STORAGE(StorageName.Permissions, this.permissions)
 
         return response
       }
@@ -92,18 +93,19 @@ const useUserStore = defineStore('User', {
       this.permissions = [] as string[]
       this.roleCodes = [] as string[]
       CLEAR_STORAGE()
+      CookiesStorage.remove(CookiesKey.XTenantId)
     },
     /**
      * 保存登录信息
      */
     async storeLoginInfo(accessToken: string) {
       this.accessToken = accessToken
-      SET_STRING_STORAGE(StorageName.AccessToken, this.accessToken as string)
+      SET_STRING_STORAGE(StorageName.AccessToken, this.accessToken)
     },
     /**
      * 保存租户信息
      */
-    storeTenantId(tenantId: string) {
+    storeTenantId(tenantId: number) {
       this.tenantId = tenantId
       CookiesStorage.set(CookiesKey.XTenantId, tenantId)
     },
@@ -117,7 +119,7 @@ const useUserStore = defineStore('User', {
     getPermissions: (state: UserState) => {
       return async (): Promise<string[]> => {
         return (
-          state.permissions.length > 0 ? state.permissions : (GET_ARRAY_STORAGE(StorageName.Permissions) as string[])
+          state.permissions.length > 0 ? state.permissions : GET_STR_ARRAY_STORAGE(StorageName.Permissions)
         ) as string[]
       }
     },
@@ -128,9 +130,7 @@ const useUserStore = defineStore('User', {
      */
     getRoleCodes: (state: UserState) => {
       return async (): Promise<string[]> => {
-        return (
-          state.roleCodes.length > 0 ? state.roleCodes : (GET_ARRAY_STORAGE(StorageName.RoleCodes) as string[])
-        ) as string[]
+        return state.roleCodes.length > 0 ? state.roleCodes : GET_STR_ARRAY_STORAGE(StorageName.RoleCodes)
       }
     },
   },

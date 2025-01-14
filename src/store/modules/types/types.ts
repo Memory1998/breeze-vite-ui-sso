@@ -13,7 +13,7 @@ import { Client } from '@stomp/stompjs'
  */
 export interface UserState {
   userInfo: UserInfoData
-  tenantId: string
+  tenantId: number
   accessToken: string
   roleCodes: string[]
   permissions: string[]
@@ -42,8 +42,8 @@ export interface DictState {
 export interface SettingState {
   refresh: boolean
   device: string
-  dialogWidth: number | string
-  drawnWidth: number | string
+  dialogWidth: string
+  drawnWidth: string
   theme: Theme
   settings: Settings
 }

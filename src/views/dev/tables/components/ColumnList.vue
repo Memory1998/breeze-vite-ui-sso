@@ -9,7 +9,7 @@ import { reactive, ref } from 'vue'
 import { listColumns } from '@/api/dev/tables/index.ts'
 import BTable from '@/components/Table/BTable/index.vue'
 import { useI18n } from 'vue-i18n'
-import { TableInfo } from '@/components/Table/types/types.ts'
+import { SelectEvent, TableInfo } from '@/components/Table/types/types.ts'
 import useWidth from '@/hooks/dialogWidth'
 
 defineOptions({
@@ -24,13 +24,14 @@ const disableColumn = ['id', 'is_delete', 'tenant_id', 'delete_by']
 const { t } = useI18n()
 const visible = ref<boolean>(false)
 const direction = ref('rtl')
+
+// 刷新标识
+const refresh = ref<number>(1)
+const tableIndex = ref<boolean>(true)
+// 选择框类型
+const select: SelectEvent = 'single'
+
 const tableInfo: TableInfo = {
-  // 刷新标识
-  refresh: 1,
-  pager: false,
-  tableIndex: true,
-  // 选择框类型
-  select: 'single',
   // 表格顶部按钮
   tbHeaderBtn: [],
   // 表格字段配置
@@ -127,7 +128,7 @@ const tableInfo: TableInfo = {
 const init = async (tableName: string) => {
   queryParams.tableName = tableName
   visible.value = true
-  tableInfo.refresh = Math.random()
+  refresh.value = Math.random()
 }
 
 defineExpose({
@@ -139,15 +140,15 @@ defineExpose({
   <el-drawer :size="useWidth()" :title="t('column.common.columnSetting')" v-model="visible" :direction="direction">
     <b-table
       ref="columnListTableRef"
+      :pager="false"
+      :select="select"
+      :refresh="refresh"
       :list-api="listColumns"
-      :dict="tableInfo.dict"
-      :tableIndex="tableInfo.tableIndex"
+      :tableIndex="tableIndex"
       :query="queryParams"
-      :refresh="tableInfo.refresh"
+      :dict="tableInfo.dict"
       :field-list="tableInfo.fieldList"
       :tb-header-btn="tableInfo.tbHeaderBtn"
-      :select="tableInfo.select"
-      :pager="tableInfo.pager"
       :handle-btn="tableInfo.handleBtn"
     />
   </el-drawer>

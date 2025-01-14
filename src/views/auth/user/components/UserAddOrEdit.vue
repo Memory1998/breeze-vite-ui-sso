@@ -161,7 +161,6 @@ const rules = ref({
 const init = async (id: number) => {
   userDataForm.value.id = undefined
   visible.value = true
-  console.log('弹出框打开' + new Date())
   // 重置表单数据
   if (userDataFormRef.value) {
     // TODO
@@ -223,7 +222,6 @@ const getInfo = async (id: number) => {
     Object.assign(userDataForm.value, response.data)
     userDataForm.value.password = ''
     userDataForm.value.confirmPassword = ''
-    console.log('表单获取' + new Date())
   } catch (err: any) {
     useMessage().error(err.message)
   }

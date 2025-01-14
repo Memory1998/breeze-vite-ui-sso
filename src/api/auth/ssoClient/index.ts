@@ -9,8 +9,6 @@ import { ResponseData, SelectResponseData } from '@/types/types.ts'
 
 enum API {
   SSO_CLIENT_RESTFUL_URL = '/auth/v1/ssoClient',
-  CHECK_SSO_CLIENT_CODE_URL = '/auth/v1/ssoClient/checkSsoClientCode',
-  SSO_REGISTER_CLIENT_SELECT_URL = '/sys/v1/common/selectRegisteredClient',
 }
 
 /**
@@ -99,7 +97,7 @@ export function exportExcel(params: SsoClientRecord): AxiosPromise<any> {
  */
 export function checkSsoClientCode(clientCode: string, clientId?: number): AxiosPromise<any> {
   return request({
-    url: API.CHECK_SSO_CLIENT_CODE_URL,
+    url: `${API.SSO_CLIENT_RESTFUL_URL}/checkSsoClientCode`,
     method: 'get',
     params: {
       clientId: clientId,
@@ -114,7 +112,7 @@ export function checkSsoClientCode(clientCode: string, clientId?: number): Axios
  */
 export function selectRegisterClient(): AxiosPromise<SelectResponseData> {
   return request({
-    url: API.SSO_REGISTER_CLIENT_SELECT_URL,
+    url: `${API.SSO_CLIENT_RESTFUL_URL}/selectRegisteredClient`,
     method: 'get',
   })
 }

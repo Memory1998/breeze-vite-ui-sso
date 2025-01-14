@@ -8,7 +8,6 @@ import { ClientResponseData, ClientQuery, ClientForm } from './type.ts'
 
 enum API {
   CLIENT_RESTFUL_URL = '/auth/v1/client',
-  CHECK_CLIENT_CODE_URL = '/auth/v1/client/checkClientCode',
 }
 
 /**
@@ -86,22 +85,5 @@ export function exportExcel(params: ClientQuery): AxiosPromise<ClientResponseDat
     url: API.CLIENT_RESTFUL_URL,
     method: 'post',
     data: params,
-  })
-}
-
-/**
- * 校验客户端编码是否重复
- *
- *  @param permissionCode
- *  @param permissionId
- */
-export function checkClientCode(permissionCode: string, permissionId?: number): AxiosPromise<any> {
-  return request({
-    url: API.CHECK_CLIENT_CODE_URL,
-    method: 'get',
-    params: {
-      permissionId,
-      permissionCode,
-    },
   })
 }
