@@ -141,9 +141,16 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 30px;
+    font-size: 1rem;
     font-weight: bold;
     color: #333;
+    padding: 10px;
+
+    a {
+      white-space: nowrap; /* 强制文本不换行 */
+      overflow: hidden; /* 超出部分隐藏 */
+      text-overflow: ellipsis; /* 超出部分显示省略号 */
+    }
   }
 
   .client:active {

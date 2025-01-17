@@ -105,14 +105,3 @@ export function checkSsoClientCode(clientCode: string, clientId?: number): Axios
     },
   })
 }
-
-/**
- * 注册客户端下拉框
- *
- */
-export function selectRegisterClient(): AxiosPromise<SelectResponseData> {
-  return request({
-    url: `${API.SSO_CLIENT_RESTFUL_URL}/selectRegisteredClient`,
-    method: 'get',
-  })
-}

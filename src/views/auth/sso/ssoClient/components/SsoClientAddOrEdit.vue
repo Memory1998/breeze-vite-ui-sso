@@ -6,19 +6,14 @@
 <!-- SSO客户端添加修改弹出框 -->
 <script lang="ts" setup>
 import { ref } from 'vue'
-import {
-  addSsoClient,
-  getSsoClient,
-  editSsoClient,
-  checkSsoClientCode,
-  selectRegisterClient,
-} from '@/api/auth/ssoClient'
+import { addSsoClient, getSsoClient, editSsoClient, checkSsoClientCode } from '@/api/auth/ssoClient'
 import type { SsoClientForm } from '@/api/auth/ssoClient/type.ts'
 import { SelectData } from '@/types/types.ts'
 import { useI18n } from 'vue-i18n'
 import JSONBigInt from 'json-bigint'
 import useWidth from '@/hooks/dialogWidth'
 import { useMessage } from '@/hooks/message'
+import { selectRegisterClient } from '@/api/auth/client'
 
 defineOptions({
   name: 'SsoClientAddOrEdit',
@@ -124,7 +119,7 @@ const handleDataFormSubmit = async () => {
     useMessage().success(`${(id ? t('common.modify') : t('common.save')) + t('common.success')}`)
     $emit('reloadDataList')
   } catch (err: any) {
-    useMessage().error(`${id ? t('common.modify') : t('common.save') + t('common.fail')}`)
+    useMessage().error(`${err.message || (id ? t('common.modify') : t('common.save')) + t('common.fail')}`)
   } finally {
     visible.value = false
     loading.value = false
