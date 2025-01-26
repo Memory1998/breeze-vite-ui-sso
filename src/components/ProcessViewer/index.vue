@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BpmnViewer from 'bpmn-js/lib/Viewer'
-import { onMounted, ref } from 'vue'
+import { ref, watch, nextTick, onMounted } from 'vue'
 
 interface Nodes {
   finishedSequence: string[]
@@ -23,8 +23,17 @@ const defaultZoom = ref<number>(1)
 const bpmnViewer = ref<any>(null)
 
 onMounted(() => {
-  previewXml()
+  debugger
 })
+
+watch(
+  () => props.xml,
+  () => {
+    debugger
+    nextTick(() => previewXml())
+  },
+  { immediate: true },
+)
 
 const handleReZoom = () => {
   defaultZoom.value = 1
