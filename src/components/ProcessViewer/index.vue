@@ -22,14 +22,11 @@ const props = defineProps({
 const defaultZoom = ref<number>(1)
 const bpmnViewer = ref<any>(null)
 
-onMounted(() => {
-  debugger
-})
+onMounted(() => {})
 
 watch(
   () => props.xml,
   () => {
-    debugger
     nextTick(() => previewXml())
   },
   { immediate: true },
